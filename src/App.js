@@ -1,38 +1,73 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient'
+import { FunctionsFetchError } from '@supabase/supabase-js';
 
 function App() {
-  const [count , setCount] = useState(0)
-  const [difference, setDifference] = useState(0)
-  const [data, setData] = useState([])
-  const [users, setUsers] = useState([])
+  const [session , setSession] = useState(null)
+  const [loginEmail, setLoginEmail] = useState('')
+  const [signupEmail, setSignupEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [signupPassword, setSignupPassword] = useState('')
+  const [role, setRole] = useState(null)
   
   useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/posts')
-    .then(res => res.json())
-    .then(data => setData(data.slice(0,5)))
-  }, [])
-
-  useEffect(() => {
-    supabase.from('profiles').select('*').then(({ data }) => {
-      console.log('Supabase connection test: ', data)
-      setUsers(data || [])
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      if (session) fetchRole(session.user.id)
     })
   }, [])
 
-  return <div>
-    {data.map(item => <p key={item.id}>{item.title}</p>)}
-    <p>Count: {count}</p>
-    <button onClick={() => setCount(count + difference)}>Add</button>
-    <br></br><br></br>
-    <button onClick={() => setDifference(difference + 1)}>+</button>
-    <p>Add by: {difference}</p>
-    <button onClick={() => setDifference(difference - 1)}>-</button>
-    <br></br><br></br>
-    <button onClick={() => {setCount(0); setDifference(0);}}>Reset</button>
-    <br></br>
-    <p>Check console for Supabase Connection</p>
-  </div>
+  async function fetchRole(userId) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single()
+    setRole(data?.role)
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault()
+    const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password:loginPassword })
+    if (error) alert(error.message)
+    else setSession(data.session)
+  }
+
+  async function handleSignup(e) {
+    e.preventDefault()
+    const { data, error } = await supabase.auth.signUp({ email:signupEmail, password:signupPassword })
+    if (error) alert(error.message)
+    else alert('Check email for confirmation!')
+  }
+
+  if (session) {
+    return (
+      <div>
+        <h1>Welcome {session.user.email}</h1>
+        <p>Role: {role || 'Loading...'}</p>
+        <button onClick={() => supabase.auth.signOut()}>Logout</button>
+        {role === 'teacher' && <p>🏫Teacher controls go here!🏫</p>}
+        {role === 'student' && <p>📚Student controls go here!📚</p>}
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <form onSubmit={handleLogin}>
+        <h2>Login</h2>
+        <input placeholder='Email' value={loginEmail} onChange={e => setLoginEmail(e.target.value)} />
+        <input type="password" placeholder='Password' value={loginPassword} onChange={e => setLoginPassword(e.target.value)} />
+        <button type='submit'>Login</button>
+      </form>
+      <form onSubmit={handleSignup}>
+        <h2>Sign up</h2>
+        <input placeholder='Email' value={signupEmail} onChange={e => setSignupEmail(e.target.value)} />
+        <input type="password" placeholder='Password' value={signupPassword} onChange={e => setSignupPassword(e.target.value)} />
+        <button type='submit'>Sign up</button>
+      </form>
+    </div>
+  )
 }
 
 export default App
