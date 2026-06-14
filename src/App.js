@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient'
 import { FunctionsFetchError } from '@supabase/supabase-js';
+import './App.css'
 
 function App() {
   const [session , setSession] = useState(null)
@@ -43,6 +44,12 @@ function App() {
   if (session) {
     return (
       <div>
+        <header>
+          <h1>School App</h1>
+          <p>Home</p>
+          <p>Classes</p>
+          <p>Assignments</p>
+        </header>
         <h1>Welcome {session.user.email}</h1>
         <p>Role: {role || 'Loading...'}</p>
         <button onClick={() => supabase.auth.signOut()}>Logout</button>
