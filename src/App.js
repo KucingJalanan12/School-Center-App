@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient'
-import { FunctionsFetchError } from '@supabase/supabase-js';
 import './App.css'
 
 function App() {
@@ -19,12 +18,12 @@ function App() {
   }, [])
 
   async function fetchRole(userId) {
-    const { data } = await supabase
+    const { data: _data } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', userId)
       .single()
-    setRole(data?.role)
+    setRole(_data?.role)
   }
 
   async function handleLogin(e) {
