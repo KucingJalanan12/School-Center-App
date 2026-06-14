@@ -18,24 +18,24 @@ function App() {
   }, [])
 
   async function fetchRole(userId) {
-    const { data: _data } = await supabase
+    const { data: roleData } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', userId)
       .single()
-    setRole(_data?.role)
+    setRole(roleData?.role)
   }
 
   async function handleLogin(e) {
     e.preventDefault()
-    const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password:loginPassword })
+    const { data: loginData, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password:loginPassword })
     if (error) alert(error.message)
-    else setSession(data.session)
+    else setSession(loginData.session)
   }
 
   async function handleSignup(e) {
     e.preventDefault()
-    const { data, error } = await supabase.auth.signUp({ email:signupEmail, password:signupPassword })
+    const { data: signupData, error } = await supabase.auth.signUp({ email:signupEmail, password:signupPassword })
     if (error) alert(error.message)
     else alert('Check email for confirmation!')
   }
