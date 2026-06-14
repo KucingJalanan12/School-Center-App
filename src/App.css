@@ -10,3 +10,9 @@ header {
   background:white;
   flex-direction: row;
 }
+
+header p {
+  text-decoration:none;
+  margin-left:20px;
+  color:black;
+}

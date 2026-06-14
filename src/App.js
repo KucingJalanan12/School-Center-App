@@ -35,7 +35,7 @@ function App() {
 
   async function handleSignup(e) {
     e.preventDefault()
-    const { data: signupData, error } = await supabase.auth.signUp({ email:signupEmail, password:signupPassword })
+    const { data: _data, error } = await supabase.auth.signUp({ email:signupEmail, password:signupPassword })
     if (error) alert(error.message)
     else alert('Check email for confirmation!')
   }
